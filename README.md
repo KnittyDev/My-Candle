@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# My Candle 🕯️
+
+A relaxing candle timer app built with Next.js. Set a duration, light the candle, and watch it burn down with ambient fireplace sounds.
+
+## Features
+
+- **Visual candle** — Realistic burning candle that melts smoothly as time passes (bottom stays fixed).
+- **Timer** — Set duration in minutes (1–120). Start, pause, or reset anytime.
+- **Sounds**
+  - **Lighting** — `firestart.mp3` plays when you tap "Light Candle".
+  - **Ambient** — `Fireplacesound.mp3` starts after the lighting sound and loops while the candle burns.
+- **Volume controls** — Top-right: mute/unmute and volume slider for both sounds.
+- **Responsive** — Works on mobile and desktop; timer panel and candle sit side-by-side on larger screens.
+
+## Tech Stack
+
+- **Next.js 16** (App Router)
+- **React 19**
+- **Tailwind CSS**
+- **Framer Motion** — Smooth timer digit and UI animations
+- **Inter** — Google font
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+mycandle/
+├── app/
+│   ├── globals.css    # Styles, candle & timer UI
+│   ├── layout.tsx     # Root layout, Inter font
+│   └── page.tsx       # Candle timer, audio, controls
+├── public/
+│   ├── firestart.mp3       # Candle lighting sound
+│   └── Fireplacesound.mp3 # Looping fireplace ambience
+└── README.md
+```
 
-## Learn More
+## Audio Files
 
-To learn more about Next.js, take a look at the following resources:
+Place your own files in `public/`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `firestart.mp3` — Short sound when the candle is lit.
+- `Fireplacesound.mp3` — Looping background (fireplace/ambient).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Build & Deploy
 
-## Deploy on Vercel
+```bash
+npm run build
+npm start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+You can deploy to [Vercel](https://vercel.com) or any platform that supports Next.js.
