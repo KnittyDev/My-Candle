@@ -413,6 +413,10 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <footer className="absolute bottom-4 left-0 right-0 text-center text-zinc-500 text-sm">
+        ❤️ Made by KnittyDev
+      </footer>
     </div>
   );
 }
