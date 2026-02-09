@@ -27,33 +27,39 @@ export default function Home() {
   // Audio refs
   const startSoundRef = useRef<HTMLAudioElement | null>(null);
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+  const shouldPlayBgAfterStartRef = useRef(false);
+  const bgMusicStartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Initialize audio
+  // Initialize audio (once)
   useEffect(() => {
-    // Start sound (firestart)
     startSoundRef.current = new Audio("/firestart.mp3");
     startSoundRef.current.volume = isMuted ? 0 : volume;
 
-    // Background music (Ambient fire/calm music)
-    bgMusicRef.current = new Audio("/Fireplacesound.mp3"); 
+    bgMusicRef.current = new Audio("/Fireplacesound.mp3");
     bgMusicRef.current.loop = true;
     bgMusicRef.current.volume = isMuted ? 0 : volume;
 
-    // When start sound ends, play background music if candle is still lit
+    // When start sound ends, play background music (ref = no stale closure)
     startSoundRef.current.onended = () => {
-      if (isLit && isRunning && bgMusicRef.current) {
-        bgMusicRef.current.play().catch(e => console.log("Bg music play failed", e));
+      if (shouldPlayBgAfterStartRef.current && bgMusicRef.current) {
+        shouldPlayBgAfterStartRef.current = false;
+        if (bgMusicStartTimeoutRef.current) {
+          clearTimeout(bgMusicStartTimeoutRef.current);
+          bgMusicStartTimeoutRef.current = null;
+        }
+        bgMusicRef.current.play().catch((e) => console.warn("Bg music play failed", e));
       }
     };
 
     return () => {
-        if (startSoundRef.current) {
-            startSoundRef.current.pause();
-            startSoundRef.current.onended = null;
-        }
-        if (bgMusicRef.current) {
-            bgMusicRef.current.pause();
-        }
+      if (bgMusicStartTimeoutRef.current) clearTimeout(bgMusicStartTimeoutRef.current);
+      if (startSoundRef.current) {
+        startSoundRef.current.pause();
+        startSoundRef.current.onended = null;
+      }
+      if (bgMusicRef.current) {
+        bgMusicRef.current.pause();
+      }
     };
   }, []);
 
@@ -117,16 +123,25 @@ export default function Home() {
         setIsFinished(false);
     }
 
-    // Play start sound if not already running
+    // Play start sound when first lighting; bg music starts in onended (or fallback after 2.5s)
     if (!isRunning && !isLit) {
+        shouldPlayBgAfterStartRef.current = true;
         if (startSoundRef.current) {
             startSoundRef.current.currentTime = 0;
-            startSoundRef.current.play().catch(e => console.log("Audio play failed", e));
+            startSoundRef.current.play().catch((e) => console.warn("Start sound play failed", e));
         }
+        // Fallback: some browsers block play() inside onended; start bg music after 2.5s
+        bgMusicStartTimeoutRef.current = setTimeout(() => {
+            if (shouldPlayBgAfterStartRef.current && bgMusicRef.current) {
+                shouldPlayBgAfterStartRef.current = false;
+                bgMusicRef.current.play().catch((e) => console.warn("Bg music play failed", e));
+            }
+            bgMusicStartTimeoutRef.current = null;
+        }, 2500);
     } else if (!isRunning && isLit) {
         // Resuming from pause - play bg music directly
         if (bgMusicRef.current) {
-            bgMusicRef.current.play().catch(e => console.log("Bg music resume failed", e));
+            bgMusicRef.current.play().catch((e) => console.warn("Bg music resume failed", e));
         }
     }
 
@@ -162,7 +177,12 @@ export default function Home() {
     if (requestRef.current) {
       cancelAnimationFrame(requestRef.current);
     }
-    
+    if (bgMusicStartTimeoutRef.current) {
+      clearTimeout(bgMusicStartTimeoutRef.current);
+      bgMusicStartTimeoutRef.current = null;
+    }
+    shouldPlayBgAfterStartRef.current = false;
+
     // Stop all audio
     if (startSoundRef.current) {
         startSoundRef.current.pause();
